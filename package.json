@@ -1,0 +1,25 @@
+{
+  "name": "draw-n-share",
+  "version": "1.0.0",
+  "description": "custom node js framework for creating draw and share boards",
+  "main": "index.ts",
+  "scripts": {
+    "start": "nodemon index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanielSadovskiy/draw-n-share.git"
+  },
+  "author": "DANIIL SADOVSKYI",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DanielSadovskiy/draw-n-share/issues"
+  },
+  "homepage": "https://github.com/DanielSadovskiy/draw-n-share#readme",
+  "devDependencies": {
+    "@types/node": "^17.0.35",
+    "nodemon": "^2.0.16",
+    "typescript": "^4.6.4"
+  }
+}
