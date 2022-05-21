@@ -1,5 +1,3 @@
-import { throws } from "assert";
-
 const http = require('http');
 const EEmitter = require('events')
 
@@ -15,13 +13,15 @@ export class AppInstance {
 
     #_createServer() {
         return http.createServer((req, res) => {
+            this.middlewares.forEach(middleware => middleware(req, res))
+            console.log('req', req.url, req.method)
             const isEmitted = this.emitter.emit(this.#_getRouteMask(req), req, res)
             if(!isEmitted) res.end('Unknown request')
         })      
     }
 
-    #_getRouteMask({url, method}) {
-        return `[${url}]:[${method}]`
+    #_getRouteMask({pathname, method}) {
+        return `[${pathname}]:[${method}]`
     }
 
     use(middleware){
@@ -29,12 +29,11 @@ export class AppInstance {
     }
 
     addRouter(router) {
-        Object.keys(router.routes).forEach(url => {
-            const route = router.routes[url]
+        Object.keys(router.routes).forEach(pathname => {
+            const route = router.routes[pathname]
             Object.keys(route).forEach(method => {
                 const handler = route[method]
-                this.emitter.on(this.#_getRouteMask({url, method}),(req, res) => {
-                    this.middlewares.forEach(middleware => middleware(req, res))
+                this.emitter.on(this.#_getRouteMask({pathname, method}),(req, res) => {
                     handler(req,res)  
                 })
             })

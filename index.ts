@@ -8,7 +8,7 @@ app.use(bodyParser)
 app.use(chunkParser)
 app.use(urlParser('https://localhost:3000'))
 
-router.get('/users', (req, res) => {res.send({alex: 3})})
+router.get('/users', (req, res) => {res.send({query: req.params})})
 app.addRouter(router)
 
 
