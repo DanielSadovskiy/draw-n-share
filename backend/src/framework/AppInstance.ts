@@ -1,23 +1,29 @@
 const http = require('http');
 const EEmitter = require('events')
+const io = require("socket.io")
 
 export class AppInstance {
     emitter: any;
     server: any;
     middlewares: any;
+    wsserver: any;
     constructor(){
         this.emitter = new EEmitter()
         this.server = this.#_createServer()
+        this.wsserver = this.#_createWSServer()
         this.middlewares = []
     }
 
     #_createServer() {
         return http.createServer((req, res) => {
             this.middlewares.forEach(middleware => middleware(req, res))
-            console.log('req', req.url, req.method)
             const isEmitted = this.emitter.emit(this.#_getRouteMask(req), req, res)
             if(!isEmitted) res.end('Unknown request')
         })      
+    }
+
+    #_createWSServer() {
+        return io(http.createServer(), {cors: {origin: "*"}})
     }
 
     #_getRouteMask({pathname, method}) {
@@ -42,6 +48,10 @@ export class AppInstance {
 
     observe(PORT, cb){
         this.server.listen(PORT, cb)
+    }
+
+    listen(WSPORT, cb) {
+        this.wsserver.listen(WSPORT, cb)
     }
 
     
