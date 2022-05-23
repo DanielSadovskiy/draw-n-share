@@ -1,10 +1,25 @@
 import React, { useEffect } from 'react';
 import io from 'socket.io-client'
+import { debounce } from 'utils/debounce';
 import styles from './styles.module.css'
 
 export const Board = () => {
 
     const socket = io('ws://localhost:9000')
+
+    socket.on('canvas-data', (data) => {
+        const image = new Image();
+        const canvas = document.querySelector('#board') as HTMLCanvasElement
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            image.onload = () => {
+                ctx?.drawImage(image,0,0)
+            }
+            image.src = data
+
+        }
+        
+    })
 
     const drawOnCanvas = () => {            
         const canvas = document.querySelector('#board') as HTMLCanvasElement;
@@ -48,7 +63,11 @@ export const Board = () => {
                 ctx!.lineTo(mouse.x, mouse.y);
                 ctx!.closePath();
                 ctx!.stroke();
-                socket.emit('canvas-data', "hello")
+                const debouncedPaint = debounce(() => {
+                    const base64Image = canvas.toDataURL('image/png')
+                    socket.emit('canvas-data', base64Image)
+                }, 1000)
+                debouncedPaint()
             };
         }
     }
@@ -60,6 +79,7 @@ export const Board = () => {
     return (
         <div id="sketch" className={styles.sketch}>
             <canvas className={styles.board} id="board"></canvas>
+            <a href="#" id="img-file" download="image.png">download image</a>
         </div>
     )
 }

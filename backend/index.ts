@@ -1,6 +1,7 @@
 import { Router, AppInstance, bodyParser, chunkParser, urlParser } from "./src/framework";
 import mongoose from 'mongoose'
-import { getUsers } from "./src/controllers";
+import { getUsers as getDBUsers} from "./src/controllers";
+import {addUser, deleteUser, getUsers} from "./src/roomUsers"
 const io = require("socket.io")
 
 
@@ -15,17 +16,30 @@ app.use(bodyParser)
 app.use(chunkParser)
 app.use(urlParser(`https://localhost:${PORT}`))
 
-router.get('/users', getUsers)
+router.get('/users', getDBUsers)
 app.addRouter(router)
 
 
 app.wsserver.on('connection', (socket) => {
-    console.log('hello')
 
     socket.on('canvas-data', (data) => {
-        console.log('data', data)
-        // socket.broadcast.emit('canvas-data', data)
+        socket.broadcast.emit('canvas-data', data)
     } )
+    socket.on('login', ({ name, room }, callback) => {
+        const { user, error } = addUser(socket.id, name, room)
+        if (error) return callback(error)
+        socket.join(user.room)
+        socket.in(room).emit('notification', { title: 'Someone\'s here', description: `${user.name} just entered the room` })
+        io.in(room).emit('users', getUsers(room))
+        callback()
+    })
+    socket.on("disconnect", () => {
+        const user = deleteUser(socket.id)
+        if (user) {
+            io.in(user.room).emit('notification', { title: 'Someone just left', description: `${user.name} just left the room` })
+            io.in(user.room).emit('users', getUsers(user.room))
+        }
+    })
 })
 
 
