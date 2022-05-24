@@ -1,8 +1,13 @@
 import { Board } from 'components/Board/Board'
-import React from 'react'
+import { SocketContext } from 'context/socketContext'
+import { UsersContext } from 'context/usersContext'
+import React, { useContext, useEffect } from 'react'
 import styles from  './styles.module.css'
 
 export const Container = () => {
+
+    const { users } = useContext(UsersContext)
+    const socket = useContext(SocketContext)
 
     const changeTool = (tool: string ) => {
 
@@ -48,42 +53,66 @@ export const Container = () => {
 
     function saveImage(){
         const canvas = document.querySelector('#board') as HTMLCanvasElement
-        // Get a reference to the link element 
         const imageFile = document.getElementById("img-file");
         console.log(canvas);
         console.log(imageFile);
-        // Set that you want to download the image when link is clicked
         imageFile?.setAttribute('download', 'image.png');
-        // Reference the image in canvas for download
         imageFile?.setAttribute('href', canvas.toDataURL());
     }
+
+    const toggleDrawPossibility = (name: string) => {
+        socket.emit('toggle', { name }, (response: any) => {
+            if (response.error) {
+                console.log(response.error)
+                alert(response.error)
+            }
+           
+        })
+    }
+
+    useEffect(() => {
+        socket.on("toggle", (response:any) => {
+            console.log(response)
+            localStorage.setItem('user', JSON.stringify(response.user))
+        })
+    })
+
 
 
     return (
         <div className={styles.container}>
-            <div className={styles.board}>
-                <Board/>
+            <div className={styles.boardContainer}>
+                <div className={styles.board}>
+                    <Board/>
+                </div>
+                <div className={styles.toolBar}>
+                    <input type="color" />
+                    {/* <button onClick={openImage}>
+                        open image
+                    </button> */}
+                    <button onClick={() => saveImage()}>
+                        open image
+                    </button>
+                    {/* <button onClick={changeTool('brush')}>
+                        open image
+                    </button>
+                    <button onClick={changeTool('line')}>
+                        open image      
+                    </button>
+                    <button onClick={changeTool('rect')}>
+                        open image
+                    </button> */}
+                    <button>
+                        <a href="#" id="img-file" download="image.png">download image</a>
+                    </button>
+                    </div>
             </div>
-            <div className={styles.toolBar}>
-                <input type="color" />
-                {/* <button onClick={openImage}>
-                    open image
-                </button> */}
-                <button onClick={() => saveImage()}>
-                    open image
-                </button>
-                {/* <button onClick={changeTool('brush')}>
-                    open image
-                </button>
-                <button onClick={changeTool('line')}>
-                    open image      
-                </button>
-                <button onClick={changeTool('rect')}>
-                    open image
-                </button> */}
-                <button>
-                    <a href="#" id="img-file" download="image.png">download image</a>
-                </button>
+            <div className={styles.usersContainer}>
+                <ul>
+                    {users.map((user: any) => (<li>{user.name} <button onClick={() => toggleDrawPossibility(user.name)}>{user.isAbleToDraw ? "Forbid" : "Allow"}</button></li>))}
+                    <li>alex mason <button>Allow</button></li>
+                    <li>test test <button>Forbid</button></li>
+                </ul>
             </div>
         </div>
     )

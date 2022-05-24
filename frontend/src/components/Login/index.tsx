@@ -1,7 +1,7 @@
 import { MainContext } from 'context/roomContext';
 import { SocketContext } from 'context/socketContext';
 import { UsersContext } from 'context/usersContext';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.css'
 
@@ -12,15 +12,22 @@ export const Login = () => {
     const navigate = useNavigate()
     const { setUsers } = useContext(UsersContext)
 
+    useEffect(() => {
+        socket.on("users", (users:any) => {
+           setUsers(users)
+        })
+    })
+
     const handleLogin = (e: any) => {
         e.preventDefault()
         e.stopPropagation()
-        socket.emit('login', { name, room, password }, (error : any) => {
-            if (error) {
-                console.log(error)
-                alert(error)
+        socket.emit('login', { name, room, password }, (response: any) => {
+            if (response.error) {
+                console.log(response.error)
+                alert(response.error)
             } else {
                 navigate('/room')
+                localStorage.setItem('user', JSON.stringify(response.user))
             }
            
         })

@@ -8,7 +8,7 @@ const SocketContext = React.createContext<any>()
 
 
 const SocketProvider = ({ children }: any) => {
-    const ENDPOINT = 'ws://localhost:9000';
+    const ENDPOINT = 'ws://localhost:3003';
     const socket = io(ENDPOINT)
     return (
         <SocketContext.Provider value={socket}>

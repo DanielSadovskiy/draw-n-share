@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react';
+import { SocketContext } from 'context/socketContext';
+import React, { useContext, useEffect } from 'react';
 import io from 'socket.io-client'
 import { debounce } from 'utils/debounce';
 import styles from './styles.module.css'
 
 export const Board = () => {
-
-    const socket = io('ws://localhost:9000')
-
-    socket.on('canvas-data', (data) => {
+    const socket = useContext(SocketContext)
+    useEffect(() => {
+    socket.on('canvas-data', (data: any) => {
         const image = new Image();
         const canvas = document.querySelector('#board') as HTMLCanvasElement
         if(canvas) {
@@ -20,6 +20,7 @@ export const Board = () => {
         }
         
     })
+})
 
     const drawOnCanvas = () => {            
         const canvas = document.querySelector('#board') as HTMLCanvasElement;
@@ -55,16 +56,21 @@ export const Board = () => {
             }, false);
 
             const onPaint = function() {
-                ctx!.beginPath();
-                ctx!.moveTo(last_mouse.x, last_mouse.y);
-                ctx!.lineTo(mouse.x, mouse.y);
-                ctx!.closePath();
-                ctx!.stroke();
-                const debouncedPaint = debounce(() => {
-                    const base64Image = canvas.toDataURL('image/png')
-                    socket.emit('canvas-data', base64Image)
-                }, 1000)
-                debouncedPaint()
+                const user = localStorage.getItem('user')
+                let userObj: any = null;
+                if(user) userObj = JSON.parse(user)
+                if(userObj.isAbleToDraw) {
+                    ctx!.beginPath();
+                    ctx!.moveTo(last_mouse.x, last_mouse.y);
+                    ctx!.lineTo(mouse.x, mouse.y);
+                    ctx!.closePath();
+                    ctx!.stroke();
+                    const debouncedPaint = debounce(() => {
+                        const base64Image = canvas.toDataURL('image/png')
+                        socket.emit('canvas-data', {data : base64Image, room: userObj?.room})
+                    }, 1000)
+                    debouncedPaint()
+                }
             };
         }
     }
