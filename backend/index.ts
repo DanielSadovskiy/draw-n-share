@@ -30,14 +30,15 @@ app.wsserver.on('connection', (socket) => {
         if (error) return callback(error)
         socket.join(user.room)
         socket.in(room).emit('notification', { title: 'Someone\'s here', description: `${user.name} just entered the room` })
-        io.in(room).emit('users', getUsers(room))
+        app.wsserver.in(room).emit('users', getUsers(room))
+        console.log(name, room)
         callback()
     })
     socket.on("disconnect", () => {
         const user = deleteUser(socket.id)
         if (user) {
-            io.in(user.room).emit('notification', { title: 'Someone just left', description: `${user.name} just left the room` })
-            io.in(user.room).emit('users', getUsers(user.room))
+            app.wsserver.in(user.room).emit('notification', { title: 'Someone just left', description: `${user.name} just left the room` })
+            app.wsserver.in(user.room).emit('users', getUsers(user.room))
         }
     })
 })

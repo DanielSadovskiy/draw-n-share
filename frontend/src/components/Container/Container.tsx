@@ -61,7 +61,10 @@ export const Container = () => {
 
     return (
         <div className={styles.container}>
-            <div className={styles.colorPicker}>
+            <div className={styles.board}>
+                <Board/>
+            </div>
+            <div className={styles.toolBar}>
                 <input type="color" />
                 {/* <button onClick={openImage}>
                     open image
@@ -78,9 +81,9 @@ export const Container = () => {
                 <button onClick={changeTool('rect')}>
                     open image
                 </button> */}
-            </div>
-            <div className={styles.board}>
-                <Board/>
+                <button>
+                    <a href="#" id="img-file" download="image.png">download image</a>
+                </button>
             </div>
         </div>
     )

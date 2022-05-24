@@ -1,0 +1,15 @@
+.header {
+    display: flex;
+    height: 100px;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient( #0057B8, #FFD700 70%);
+}
+.header div p {
+    
+    font-size: 64px;
+    background: -webkit-linear-gradient(-90deg, #FFD700 5%, orange 50%, #0057B8 70%);
+    -webkit-background-clip: text;
+    -webkit-text-stroke: 4px transparent;
+    font-family: 'Roboto', sans-serif;
+}

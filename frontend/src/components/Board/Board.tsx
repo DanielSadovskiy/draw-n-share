@@ -33,7 +33,6 @@ export const Board = () => {
             const mouse = {x: 0, y: 0};
             const last_mouse = {x: 0, y: 0};
 
-            /* Mouse Capturing Work */
             canvas.addEventListener('mousemove', function(e) {
                 last_mouse.x = mouse.x;
                 last_mouse.y = mouse.y;
@@ -42,8 +41,6 @@ export const Board = () => {
                 mouse.y = e.pageY - this.offsetTop;
             }, false);
 
-
-            /* Drawing on Paint App */
             ctx!.lineWidth = 5;
             ctx!.lineJoin = 'round';
             ctx!.lineCap = 'round';
@@ -79,7 +76,6 @@ export const Board = () => {
     return (
         <div id="sketch" className={styles.sketch}>
             <canvas className={styles.board} id="board"></canvas>
-            <a href="#" id="img-file" download="image.png">download image</a>
         </div>
     )
 }

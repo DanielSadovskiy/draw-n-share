@@ -1,0 +1,12 @@
+.notFoundPage {
+    display: flex;
+    justify-content:center;
+    align-items:center;
+    height: 400px;
+    width: 100%;
+}
+.notFoundPage h2{
+    font-size: 50px;
+    color: #000;
+    font-family: 'Roboto', sans-serif;
+}

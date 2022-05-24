@@ -1,3 +1,5 @@
+import { Layout } from 'components/Layout';
+import { MainProvider } from 'context/roomContext';
 import { SocketProvider } from 'context/socketContext';
 import { UsersProvider } from 'context/usersContext';
 import React from 'react';
@@ -11,9 +13,13 @@ root.render(
   <React.StrictMode>
     <UsersProvider>
       <SocketProvider>
+        <MainProvider>
         <BrowserRouter>
+          <Layout>
           <App/>
+          </Layout>
         </BrowserRouter>
+        </MainProvider>
       </SocketProvider>
     </UsersProvider>
   </React.StrictMode>
