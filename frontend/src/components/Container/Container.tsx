@@ -1,5 +1,6 @@
 import { Board } from 'components/Board/Board'
 import { SocketContext } from 'context/socketContext'
+import { ToolContext } from 'context/toolContext'
 import { UsersContext } from 'context/usersContext'
 import React, { useContext, useEffect } from 'react'
 import styles from  './styles.module.css'
@@ -7,6 +8,7 @@ import styles from  './styles.module.css'
 export const Container = () => {
 
     const { users } = useContext(UsersContext)
+    const { color, setColor} = useContext(ToolContext)
     const socket = useContext(SocketContext)
 
     const changeTool = (tool: string ) => {
@@ -86,7 +88,7 @@ export const Container = () => {
                     <Board/>
                 </div>
                 <div className={styles.toolBar}>
-                    <input type="color" />
+                    <input type="color" value={color} onChange={({target: {value}}) => setColor(value)}/>
                     {/* <button onClick={openImage}>
                         open image
                     </button> */}
