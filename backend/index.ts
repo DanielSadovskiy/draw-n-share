@@ -25,8 +25,8 @@ app.wsserver.on('connection', (socket) => {
     socket.on('canvas-data', (data) => {
         socket.broadcast.emit('canvas-data', data)
     } )
-    socket.on('login', ({ name, room }, callback) => {
-        const { user, error } = addUser(socket.id, name, room)
+    socket.on('login', ({ name, room, password }, callback) => {
+        const { user, error } = addUser(socket.id, name, room, password)
         if (error) return callback(error)
         socket.join(user.room)
         socket.in(room).emit('notification', { title: 'Someone\'s here', description: `${user.name} just entered the room` })

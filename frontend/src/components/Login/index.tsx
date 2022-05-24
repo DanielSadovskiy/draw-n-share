@@ -15,11 +15,14 @@ export const Login = () => {
     const handleLogin = (e: any) => {
         e.preventDefault()
         e.stopPropagation()
-        socket.emit('login', { name, room }, (error : any) => {
+        socket.emit('login', { name, room, password }, (error : any) => {
             if (error) {
                 console.log(error)
+                alert(error)
+            } else {
+                navigate('/room')
             }
-            navigate('/room')
+           
         })
     }
 
