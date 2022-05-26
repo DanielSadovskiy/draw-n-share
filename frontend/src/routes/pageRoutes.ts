@@ -1,5 +1,5 @@
 const BASEPATH = '/'
-const ROOMPATH = `${BASEPATH}Room`
+const ROOMPATH = `${BASEPATH}room`
 
 
 export default {

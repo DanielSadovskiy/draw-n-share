@@ -28,7 +28,7 @@ app.wsserver.on('connection', (socket) => {
         if (error) return callback({error})
         socket.join(room)
         socket.in(room).emit('notification', { title: 'Someone\'s here', description: `${user.name} just entered the room` })
-        socket.broadcast.to(room).emit('users', getUsers(room))
+        app.wsserver.sockets.in(room).emit('users', getUsers(room))
         callback({user})
     })
 
@@ -38,8 +38,17 @@ app.wsserver.on('connection', (socket) => {
 
     socket.on("disconnect", () => {
         const user = deleteUser(socket.id)
-        // socket.leave(user.room)
         if (user) {
+            socket.leave(user.room)
+            app.wsserver.in(user.room).emit('notification', { title: 'Someone just left', description: `${user.name} just left the room` })
+            app.wsserver.in(user.room).emit('users', getUsers(user.room))
+        }
+    })
+
+    socket.on("logout", () => {
+        const user = deleteUser(socket.id)
+        if (user) {
+            socket.leave(user.room)
             app.wsserver.in(user.room).emit('notification', { title: 'Someone just left', description: `${user.name} just left the room` })
             app.wsserver.in(user.room).emit('users', getUsers(user.room))
         }

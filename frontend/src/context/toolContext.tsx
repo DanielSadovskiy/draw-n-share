@@ -5,9 +5,11 @@ const ToolContext = React.createContext<any>()
 
 const ToolProvider = ({ children }: any) => {
     const [color, setColor] = useState("#000")
+    const [width, setWidth] = useState(5)
+    console.log(width)
 
     return (
-        <ToolContext.Provider value={{color, setColor}}>
+        <ToolContext.Provider value={{color, setColor, width , setWidth}}>
             {children}
         </ToolContext.Provider>
     )

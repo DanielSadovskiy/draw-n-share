@@ -14,6 +14,10 @@ export class AppInstance {
         this.middlewares = []
     }
 
+    use(middleware){
+        this.middlewares.push(middleware)
+    }
+
     #_createServer() {
         return http.createServer((req, res) => {
             this.middlewares.forEach(middleware => middleware(req, res))
@@ -28,10 +32,6 @@ export class AppInstance {
 
     #_getRouteMask({pathname, method}) {
         return `[${pathname}]:[${method}]`
-    }
-
-    use(middleware){
-        this.middlewares.push(middleware)
     }
 
     addRouter(router) {

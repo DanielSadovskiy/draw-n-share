@@ -1,63 +1,31 @@
 import { Board } from 'components/Board/Board'
+import { CurrentUserContext } from 'context/currentUserContext'
 import { SocketContext } from 'context/socketContext'
 import { ToolContext } from 'context/toolContext'
 import { UsersContext } from 'context/usersContext'
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import styles from  './styles.module.css'
 
 export const Container = () => {
 
     const { users } = useContext(UsersContext)
-    const { color, setColor} = useContext(ToolContext)
+    const { color, setColor, width, setWidth} = useContext(ToolContext)
+    const navigate = useNavigate()
+    const myUser = JSON.parse(localStorage.getItem('user')!)
     const socket = useContext(SocketContext)
+    const {setUser} = useContext(CurrentUserContext)
+    const [img, setImg] = useState<string>();
 
     const changeTool = (tool: string ) => {
 
 
     }
 
-    // function drawRubberbandShape(loc){
-    //     ctx.strokeStyle = strokeColor;
-    //     ctx.fillStyle = fillColor;
-    //     if(currentTool === "brush"){
-    //         // Create paint brush
-    //         DrawBrush();
-    //     } else if(currentTool === "line"){
-    //         // Draw Line
-    //         ctx.beginPath();
-    //         ctx.moveTo(mousedown.x, mousedown.y);
-    //         ctx.lineTo(loc.x, loc.y);
-    //         ctx.stroke();
-    //     } else if(currentTool === "rectangle"){
-    //         // Creates rectangles
-    //         ctx.strokeRect(shapeBoundingBox.left, shapeBoundingBox.top, shapeBoundingBox.width, shapeBoundingBox.height);
-    //     } else if(currentTool === "circle"){
-    //         // Create circles
-    //         let radius = shapeBoundingBox.width;
-    //         ctx.beginPath();
-    //         ctx.arc(mousedown.x, mousedown.y, radius, 0, Math.PI * 2);
-    //         ctx.stroke();
-    //     } else if(currentTool === "ellipse"){
-    //         // Create ellipses
-    //         // ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle)
-    //         let radiusX = shapeBoundingBox.width / 2;
-    //         let radiusY = shapeBoundingBox.height / 2;
-    //         ctx.beginPath();
-    //         ctx.ellipse(mousedown.x, mousedown.y, radiusX, radiusY, Math.PI / 4, 0, Math.PI * 2);
-    //         ctx.stroke();
-    //     } else if(currentTool === "polygon"){
-    //         // Create polygons
-    //         getPolygon();
-    //         ctx.stroke();
-    //     }
-    // }
-
-
-    function saveImage(){
+    const saveImage = () =>{
         const canvas = document.querySelector('#board') as HTMLCanvasElement
         const imageFile = document.getElementById("img-file");
-        console.log(canvas);
-        console.log(imageFile);
         imageFile?.setAttribute('download', 'image.png');
         imageFile?.setAttribute('href', canvas.toDataURL());
     }
@@ -74,10 +42,38 @@ export const Container = () => {
 
     useEffect(() => {
         socket.on("toggle", (response:any) => {
-            console.log(response)
             localStorage.setItem('user', JSON.stringify(response.user))
         })
+        socket.on("notification", (response:any) => {
+            toast(response.description)
+        })
     })
+
+    const onImageChange = (e:any) => {
+        setImg(URL.createObjectURL(e.target.files[0]));
+        const canvas = document.querySelector('#board') as HTMLCanvasElement;
+        const ctx = canvas.getContext('2d');
+        const img = new Image()
+        // @ts-ignore
+        img.src = URL.createObjectURL(e.target.files[0])
+        img.onload = () => {
+            ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
+        }
+      };
+
+    const Logout = () => {
+        socket.emit('logout', (response: any) => {
+            console.log(response)
+            if (response.error) {
+                console.log(response.error)
+                alert(response.error)
+            } 
+        })
+        toast("You are logged out")
+        localStorage.removeItem('user')
+        setUser(null)
+    }
+
 
 
 
@@ -92,9 +88,9 @@ export const Container = () => {
                     {/* <button onClick={openImage}>
                         open image
                     </button> */}
-                    <button onClick={() => saveImage()}>
-                        open image
-                    </button>
+                    {/* <button onClick={openImage}> */}
+                        <input type="file" onChange={onImageChange} />
+                    {/* </button> */}
                     {/* <button onClick={changeTool('brush')}>
                         open image
                     </button>
@@ -104,16 +100,24 @@ export const Container = () => {
                     <button onClick={changeTool('rect')}>
                         open image
                     </button> */}
-                    <button>
-                        <a href="#" id="img-file" download="image.png">download image</a>
+                    <input type="range" min="1" max="100" step="1" value={width} onChange={({target:{value}}) => setWidth(value)}/>
+                    <button onClick={() => saveImage()}>
+                        <a href="#" id="img-file" download="image.png">DOWNLOAD</a>
+                    </button>
+                    <button onClick={Logout}>
+                       Logout
                     </button>
                     </div>
             </div>
             <div className={styles.usersContainer}>
                 <ul>
-                    {users.map((user: any) => (<li>{user.name} <button onClick={() => toggleDrawPossibility(user.name)}>{user.isAbleToDraw ? "Forbid" : "Allow"}</button></li>))}
-                    <li>alex mason <button>Allow</button></li>
-                    <li>test test <button>Forbid</button></li>
+                    {users.map((user: any) => (
+                        <li key={user.id}>{user.name} {myUser.id === user.id ? "(you)": ""}
+                            {myUser.isAdmin && myUser.id !== user.id ? 
+                            <button onClick={() => toggleDrawPossibility(user.name)}>
+                                {user.isAbleToDraw ? "Forbid" : "Allow"}
+                            </button> :""}
+                        </li>))}
                 </ul>
             </div>
         </div>

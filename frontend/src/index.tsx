@@ -1,4 +1,5 @@
 import { Layout } from 'components/Layout';
+import { CurrentUserProvider } from 'context/currentUserContext';
 import { MainProvider } from 'context/roomContext';
 import { SocketProvider } from 'context/socketContext';
 import { ToolProvider } from 'context/toolContext';
@@ -16,11 +17,13 @@ root.render(
       <SocketProvider>
         <MainProvider>
           <ToolProvider>
-          <BrowserRouter>
-            <Layout>
-            <App/>
-            </Layout>
-          </BrowserRouter>
+            <CurrentUserProvider>
+              <BrowserRouter>
+                <Layout>
+                <App/>
+                </Layout>
+              </BrowserRouter>
+          </CurrentUserProvider>
         </ToolProvider>
         </MainProvider>
       </SocketProvider>
